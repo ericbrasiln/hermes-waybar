@@ -23,6 +23,23 @@ O `/api/status` reportou o gateway em execução, modo `multiple`, com os perfis
 
 A tentativa de WebSocket usou o formato documentado no código do Hermes Desktop para conexões em modo token: `ws(s)://host/api/ws?token=...`. O servidor rejeitou o upgrade com `403` antes de qualquer frame JSON-RPC.
 
+## Validação adicional do API Server
+
+O gateway também possui um API Server separado do dashboard. No VPS, ele está habilitado e protegido por `API_SERVER_KEY`, mas escuta somente em `127.0.0.1:8642`.
+
+Testes locais no VPS:
+
+| Endpoint | Resultado |
+|---|---:|
+| `http://127.0.0.1:8642/health` | `200` |
+| `http://127.0.0.1:8642/health/detailed` | `200` |
+| `http://127.0.0.1:8642/v1/capabilities` | `200` |
+| `http://127.0.0.1:8642/v1/models` | `200` |
+
+O mesmo serviço não está acessível pelo endereço Tailscale `100.84.75.108:8642`, porque o bind atual é loopback.
+
+Essa validação muda a decisão técnica: **o API Server HTTP é o transporte recomendado para o projeto**, desde que seja exposto de forma restrita à rede Tailscale ou por um proxy HTTPS. O dashboard na porta 9119 não deve ser usado como API pública do Waybar.
+
 ## Diagnóstico
 
 O servidor anuncia `auth_required: true`. O código do Hermes Desktop documenta dois modelos diferentes:

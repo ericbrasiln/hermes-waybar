@@ -71,7 +71,9 @@ Toda saída destinada ao módulo será um objeto JSON com, no mínimo:
 5. Registrar exemplos reais anonimizados em `tests/fixtures/`.
 6. Não fixar o transporte antes de validar autenticação e listagem de sessões.
 
-**Resultado parcial:** `/api/status` responde, mas as rotas protegidas não aceitaram o token estático testado enquanto o gateway anuncia `auth_required: true`. O registro detalhado está em [`docs/PROTOCOL.md`](PROTOCOL.md).
+**Resultado parcial:** o dashboard na porta 9119 é acessível, mas suas rotas protegidas e o WebSocket rejeitaram o token estático testado. O API Server separado respondeu localmente no VPS (`/health`, `/health/detailed`, `/v1/capabilities` e `/v1/models`), autenticado por `API_SERVER_KEY`, mas ainda escuta somente em loopback. O registro detalhado está em [`docs/PROTOCOL.md`](PROTOCOL.md).
+
+**Decisão provisória:** usar o API Server HTTP como transporte principal. Antes de implementar o cliente remoto, o servidor precisa ser exposto somente pela interface Tailscale ou por proxy HTTPS, com a chave própria do API Server. Não usar a porta do dashboard como substituta.
 
 **Saída:** contrato documentado e decisão de transporte.
 
