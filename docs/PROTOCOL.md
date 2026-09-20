@@ -17,8 +17,11 @@ O endpoint remoto configurado no Hermes Desktop responde em HTTP e expõe uma AP
 | `/api/sessions` | `401 unauthenticated` | Token estático testado não autentica esta rota no modo atual |
 | `/api/model/options` | `401 unauthenticated` | Token estático testado não autentica esta rota no modo atual |
 | `/api/messaging/platforms` | `401 unauthenticated` | Token estático testado não autentica esta rota no modo atual |
+| `WS /api/ws?token=...` | `403 Forbidden` | Token estático testado também não autentica o WebSocket do Desktop |
 
 O `/api/status` reportou o gateway em execução, modo `multiple`, com os perfis `default`, `baskerville`, `magah`, `marvin` e `stoner`. Esse endpoint é público e não prova que uma operação autenticada funcionará.
+
+A tentativa de WebSocket usou o formato documentado no código do Hermes Desktop para conexões em modo token: `ws(s)://host/api/ws?token=...`. O servidor rejeitou o upgrade com `403` antes de qualquer frame JSON-RPC.
 
 ## Diagnóstico
 
@@ -41,7 +44,17 @@ A próxima etapa deve ser uma destas:
 2. habilitar explicitamente uma interface de API destinada a clientes externos, com credencial própria e escopo adequado; ou
 3. validar o WebSocket `/api/ws` usado pelo Desktop, mantendo a autenticação no mesmo modelo do aplicativo.
 
-A terceira opção parece a mais promissora para preservar a compatibilidade com o Desktop remoto. Ela ainda precisa de uma prova de conexão e de uma decisão sobre a dependência WebSocket no helper local.
+A terceira opção foi testada. O WebSocket `WS /api/ws?token=...`, que é o formato usado pelo Desktop em conexões de token estático, respondeu `403 Forbidden`. Assim, o transporte está acessível, mas a credencial disponível não é aceita por nenhuma das duas interfaces testadas.
+
+## Próxima decisão necessária
+
+Antes de escrever o adaptador, precisamos resolver a autenticação do cliente externo. As alternativas são:
+
+1. criar uma credencial própria para clientes externos, se o Hermes Gateway oferecer esse modo;
+2. usar um fluxo OAuth com sessão/ticket próprio, sem extrair cookies do Hermes Desktop;
+3. executar um pequeno relay autorizado no ambiente do gateway, com uma credencial independente e escopo mínimo.
+
+Não devemos copiar cookies do Electron, reutilizar tokens internos do Desktop ou colocar credenciais em arquivos do Waybar.
 
 ## Consequência para o projeto
 
