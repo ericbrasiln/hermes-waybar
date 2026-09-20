@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68,<81"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hermes-waybar"
+version = "0.1.0.dev0"
+description = "Waybar integration for Hermes Agent"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Eric Brasil Nepomuceno" }
+]
+dependencies = []
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8,<9",
+]
+
+[project.scripts]
+hermes-waybar = "hermes_waybar.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
