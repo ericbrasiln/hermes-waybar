@@ -28,13 +28,19 @@ class FakeResponse:
 class StatusTests(unittest.TestCase):
     def test_status_maps_running_gateway_to_waybar_json(self):
         def fake_urlopen(request, timeout):
-            return FakeResponse({
-                "status": "ok",
-                "version": "0.21.3",
-                "gateway_state": "running",
-                "gateway_busy": True,
-                "platforms": {"api_server": {"state": "connected"}},
-            })
+            responses = {
+                "http://gateway/health/detailed": {
+                    "status": "ok",
+                    "version": "0.21.3",
+                    "gateway_state": "running",
+                    "gateway_busy": True,
+                    "platforms": {"api_server": {"state": "connected"}},
+                },
+                "http://gateway/api/sessions?limit=5": {
+                    "data": [{"title": "Pesquisa", "model": "gpt-test"}],
+                },
+            }
+            return FakeResponse(responses[request.full_url])
 
         with patch("hermes_waybar.client.urlopen", side_effect=fake_urlopen):
             status = HermesApiClient("http://gateway", "secret").status()

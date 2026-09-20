@@ -1,0 +1,13 @@
+[Unit]
+Description=Hermes Waybar notification watcher
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/hermes-waybar watch --interval 10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

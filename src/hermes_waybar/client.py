@@ -42,6 +42,22 @@ class HermesApiClient:
         except (json.JSONDecodeError, UnicodeDecodeError) as exc:
             raise ValueError(f"invalid JSON from {path}") from exc
 
+    def session_rows(self, limit: int = 5) -> list[dict[str, Any]]:
+        result = self._get(f"/api/sessions?limit={max(1, min(limit, 20))}")
+        rows = result.payload.get("data", [])
+        return [row for row in rows if isinstance(row, dict)] if isinstance(rows, list) else []
+
+    def sessions(self, limit: int = 5) -> list[str]:
+        rows = self.session_rows(limit)
+        labels = []
+        for row in rows:
+            if not isinstance(row, dict) or row.get("hidden"):
+                continue
+            title = str(row.get("title") or row.get("id") or "sessão").strip()
+            model = str(row.get("model") or "").strip()
+            labels.append(f"{title[:56]}" + (f" [{model}]" if model else ""))
+        return labels[:limit]
+
     def status(self) -> AgentStatus:
         if not self.endpoint or not self.api_key:
             return AgentStatus("offline", detail="configuração ausente")
@@ -61,7 +77,11 @@ class HermesApiClient:
                 detail=f"gateway: {gateway_state or 'desconhecido'}",
             )
         state = "busy" if payload.get("gateway_busy") else "running"
-        return AgentStatus(state, version=str(payload.get("version") or "") or None)
+        try:
+            sessions = self.sessions()
+        except (HTTPError, ConnectionError, ValueError):
+            sessions = []
+        return AgentStatus(state, version=str(payload.get("version") or "") or None, sessions=sessions)
 
     def doctor(self) -> DoctorReport:
         report = DoctorReport()

@@ -31,11 +31,37 @@ Dentro do objeto principal da configuração:
   "return-type": "json",
   "interval": 10,
   "tooltip": true,
-  "format": "{}"
+  "format": "{}",
+  "on-click": "hermes-waybar open"
 },
 ```
 
-O script existente `usb-status.sh` não precisa ser alterado.
+O clique usa `hermes desktop --skip-build` por padrão. Para outro comando:
+
+```bash
+export HERMES_WAYBAR_DESKTOP_COMMAND='seu-comando-do-desktop'
+```
+
+## Sessões e notificações
+
+O tooltip lista as cinco sessões mais recentes. A notificação de conclusão usa um watcher separado:
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp systemd/hermes-waybar-notifications.service \
+  ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now hermes-waybar-notifications.service
+```
+
+O watcher usa `notify-send` quando disponível e notifica transições para estados finais registrados pelo API Server. Ele mantém apenas IDs e razões de encerramento em:
+
+```text
+~/.local/state/hermes-waybar/notifications.json
+```
+
+A primeira execução apenas cria o estado inicial. Ela não dispara notificações antigas.
+
 
 ## 3. Adicionar o estilo
 

@@ -10,6 +10,7 @@ class AgentStatus:
     state: str
     version: str | None = None
     detail: str = ""
+    sessions: list[str] = field(default_factory=list)
 
     def to_waybar_dict(self) -> dict[str, str]:
         labels = {
@@ -21,9 +22,12 @@ class AgentStatus:
         text, label = labels.get(self.state, ("☤", "Hermes: desconhecido"))
         version = f"\nVersão: {self.version}" if self.version else ""
         detail = f"\n{self.detail}" if self.detail else ""
+        sessions = ""
+        if self.sessions:
+            sessions = "\nSessões recentes:\n" + "\n".join(f"• {item}" for item in self.sessions)
         return {
             "text": text,
-            "tooltip": f"{label}{version}{detail}",
+            "tooltip": f"{label}{version}{detail}{sessions}",
             "class": self.state,
             "alt": self.state,
         }

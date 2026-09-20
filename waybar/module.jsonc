@@ -4,5 +4,6 @@
   "return-type": "json",
   "interval": 10,
   "tooltip": true,
-  "format": "{}"
+  "format": "{}",
+  "on-click": "hermes-waybar open"
 }
