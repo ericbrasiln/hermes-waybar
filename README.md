@@ -45,7 +45,16 @@ O helper local não deve armazenar tokens na configuração do Waybar. Credencia
 
 ## Desenvolvimento
 
-O plano de implementação está em [`docs/PLAN.md`](docs/PLAN.md). A arquitetura está em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+O plano de implementação está em [`docs/PLAN.md`](docs/PLAN.md). A arquitetura está em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). A configuração está em [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md).
+
+O primeiro comando implementado é o diagnóstico do API Server:
+
+```bash
+PYTHONPATH=src python3 -m hermes_waybar.cli doctor
+PYTHONPATH=src python3 -m hermes_waybar.cli doctor --json
+```
+
+Ele verifica alcance, autenticação, versão, capabilities e modelos sem expor a chave da API. A instalação via `hermes-waybar` será adicionada após a validação do pacote.
 
 Ainda não instale este projeto em uma máquina de produção. O protocolo do gateway será validado antes da primeira versão instalável.
 
