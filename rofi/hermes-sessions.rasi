@@ -1,0 +1,43 @@
+configuration {
+    show-icons: false;
+}
+
+@import "~/.config/rofi/themes/nord.rasi"
+
+window {
+    width: 720px;
+}
+
+mainbox {
+    padding: 18px;
+    spacing: 12px;
+    children: [ "inputbar", "listview" ];
+}
+
+inputbar {
+    padding: 12px;
+    border-radius: 10px;
+}
+
+entry {
+    placeholder: "Selecione a sessão do Hermes...";
+}
+
+listview {
+    columns: 1;
+    lines: 8;
+    fixed-height: false;
+    dynamic: true;
+    spacing: 6px;
+}
+
+element {
+    padding: 12px;
+    border-radius: 10px;
+}
+
+element-text {
+    vertical-align: 0.5;
+    horizontal-align: 0;
+    markup: false;
+}

@@ -10,6 +10,7 @@ from pathlib import Path
 from .client import HermesApiClient
 from .config import default_config_path, load_config
 from .notifications import default_state_path, watch
+from .pickers import pick
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -33,7 +34,31 @@ def build_parser() -> argparse.ArgumentParser:
     watch_parser.add_argument("--interval", type=float, default=10.0)
     watch_parser.add_argument("--state", type=Path, default=default_state_path())
     watch_parser.add_argument("--once", action="store_true")
+    sessions_parser = subparsers.add_parser("sessions", help="pick a session and open it")
+    sessions_parser.add_argument("--endpoint", help="override the configured API Server URL")
+    sessions_parser.add_argument("--api-key", help="override the configured API Server key")
+    sessions_parser.add_argument("--config", type=Path, help="configuration file path")
+    sessions_parser.add_argument("--theme", help="rofi theme path")
+    sessions_parser.add_argument("--limit", type=int, default=10)
+    prompt_parser = subparsers.add_parser("prompt", help="pick a session and send a prompt")
+    prompt_parser.add_argument("--endpoint", help="override the configured API Server URL")
+    prompt_parser.add_argument("--api-key", help="override the configured API Server key")
+    prompt_parser.add_argument("--config", type=Path, help="configuration file path")
+    prompt_parser.add_argument("--theme", help="rofi theme path")
+    prompt_parser.add_argument("--limit", type=int, default=10)
     return parser
+
+
+def _notify_desktop(title: str, body: str) -> None:
+    try:
+        subprocess.run(
+            ["notify-send", "--app-name=Hermes", title, body],
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except OSError:
+        pass
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -66,6 +91,40 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as exc:
             print(f"notification watch failed: {exc}", file=sys.stderr)
             return 1
+    if args.command in {"sessions", "prompt"}:
+        rows = client.visible_sessions(args.limit)
+        if not rows:
+            print("nenhuma sessão encontrada", file=sys.stderr)
+            return 1
+        entries = []
+        for row in rows:
+            title = str(row.get("title") or row.get("id") or "sessão").strip()
+            model = str(row.get("model") or "").strip()
+            entries.append(f"{title}" + (f" [{model}]" if model else ""))
+        chosen = pick(entries, "Sessão", args.theme)
+        if chosen is None:
+            return 0
+        index = entries.index(chosen)
+        row = rows[index]
+        session_id = str(row.get("id") or "")
+        title = str(row.get("title") or session_id)
+        if args.command == "sessions":
+            print(f"sessão selecionada: {title} ({session_id})")
+            return 0
+        message = pick([], "Prompt", args.theme)
+        if message is None:
+            print("nenhum prompt fornecido", file=sys.stderr)
+            return 1
+        try:
+            response = client.send_prompt(session_id, message)
+        except Exception as exc:
+            _notify_desktop("Hermes", f"falha ao enviar prompt: {exc}")
+            print(f"falha ao enviar prompt: {exc}", file=sys.stderr)
+            return 1
+        text = str(response.get("final_response") or response.get("response") or "").strip()
+        _notify_desktop("Hermes", text[:500] or "prompt enviado")
+        print(text or "prompt enviado")
+        return 0
     report = client.doctor()
     print(report.to_json() if args.json else report.to_text())
     return 0 if report.ok else 1

@@ -47,6 +47,28 @@ class HermesApiClient:
         rows = result.payload.get("data", [])
         return [row for row in rows if isinstance(row, dict)] if isinstance(rows, list) else []
 
+    def visible_sessions(self, limit: int = 10) -> list[dict[str, Any]]:
+        return [row for row in self.session_rows(limit) if not row.get("hidden")]
+
+    def send_prompt(self, session_id: str, message: str) -> dict[str, Any]:
+        if not session_id:
+            raise ValueError("session id is required")
+        if not message.strip():
+            raise ValueError("message is required")
+        request = Request(
+            f"{self.endpoint}/api/sessions/{session_id}/chat",
+            data=json.dumps({"message": message}).encode(),
+            headers={
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+                "User-Agent": "hermes-waybar/0.1",
+            },
+            method="POST",
+        )
+        with urlopen(request, timeout=max(self.timeout, 300.0)) as response:
+            return json.loads(response.read())
+
     def sessions(self, limit: int = 5) -> list[str]:
         rows = self.session_rows(limit)
         labels = []

@@ -32,14 +32,55 @@ Dentro do objeto principal da configuração:
   "interval": 10,
   "tooltip": true,
   "format": "{}",
-  "on-click": "hermes-waybar open"
+  "on-click": "hermes-waybar open",
+  "on-click-right": "hermes-waybar sessions --theme ~/.config/rofi/themes/nord.rasi"
 },
 ```
+
+- clique esquerdo: abre o Hermes Desktop;
+- clique direito: abre o seletor de sessões no Rofi.
 
 O clique usa `hermes desktop --skip-build` por padrão. Para outro comando:
 
 ```bash
 export HERMES_WAYBAR_DESKTOP_COMMAND='seu-comando-do-desktop'
+```
+
+## Seletor de sessões e envio de prompt
+
+Com o clique direito, o Rofi lista as sessões recentes usando o seu tema Nord.
+
+Para enviar um prompt a uma sessão:
+
+```bash
+hermes-waybar prompt --theme ~/.config/rofi/themes/nord.rasi
+```
+
+Fluxo:
+
+```text
+selecionar sessão
+  ↓
+digitar o prompt no Rofi
+  ↓
+enviar para POST /api/sessions/{session_id}/chat
+  ↓
+resposta via notify-send
+```
+
+O prompt só é enviado após seleção e digitação explícitas. Nenhum prompt é enviado automaticamente.
+
+Temas de referência no repositório:
+
+```text
+rofi/hermes-sessions.rasi
+rofi/hermes-prompt.rasi
+```
+
+Ambos importam o seu tema base:
+
+```rasi
+@import "~/.config/rofi/themes/nord.rasi"
 ```
 
 ## Sessões e notificações
