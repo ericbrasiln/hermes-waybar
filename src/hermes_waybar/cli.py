@@ -107,8 +107,21 @@ def _open_desktop(*, focus_only: bool, hud: bool = False) -> int:
             print(f"nenhuma janela com class {window_class}", file=sys.stderr)
             return 1
     command = command_env or "hermes desktop --skip-build"
+    log_path = Path.home() / ".local" / "state" / "hermes-waybar" / "desktop.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     try:
-        subprocess.Popen(shlex.split(command), start_new_session=True)
+        log_file = log_path.open("a", encoding="utf-8")
+        log_file.write(f"\\n--- launch {command!r} cwd={Path.home()} ---\\n")
+        log_file.flush()
+        subprocess.Popen(
+            shlex.split(command),
+            cwd=Path.home(),
+            stdin=subprocess.DEVNULL,
+            stdout=log_file,
+            stderr=subprocess.STDOUT,
+            start_new_session=True,
+        )
+        log_file.close()
     except (OSError, ValueError) as exc:
         print(f"não foi possível abrir o Hermes Desktop: {exc}", file=sys.stderr)
         return 1
