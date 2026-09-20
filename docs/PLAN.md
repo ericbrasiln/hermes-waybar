@@ -65,9 +65,13 @@ Toda saída destinada ao módulo será um objeto JSON com, no mínimo:
 ### Fase 0 — contrato e descoberta do gateway
 
 1. Identificar endpoints, autenticação e eventos disponíveis no Hermes Gateway.
-2. Definir o modelo interno de estado.
-3. Definir comportamento para gateway indisponível, timeout, resposta inválida e sessão inexistente.
-4. Registrar exemplos reais anonimizados em `tests/fixtures/`.
+2. Validar separadamente o caminho HTTP, o caminho SSE e o WebSocket usado pelo Hermes Desktop.
+3. Definir o modelo interno de estado.
+4. Definir comportamento para gateway indisponível, timeout, resposta inválida e sessão inexistente.
+5. Registrar exemplos reais anonimizados em `tests/fixtures/`.
+6. Não fixar o transporte antes de validar autenticação e listagem de sessões.
+
+**Resultado parcial:** `/api/status` responde, mas as rotas protegidas não aceitaram o token estático testado enquanto o gateway anuncia `auth_required: true`. O registro detalhado está em [`docs/PROTOCOL.md`](PROTOCOL.md).
 
 **Saída:** contrato documentado e decisão de transporte.
 
