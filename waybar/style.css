@@ -1,0 +1,19 @@
+/* Estilos para o módulo custom/hermes. */
+#custom-hermes {
+  color: @frost-1;
+  padding: 0 8px;
+  margin: 0 2px;
+}
+
+#custom-hermes.busy {
+  color: @frost-2;
+}
+
+#custom-hermes.offline,
+#custom-hermes.error {
+  color: @red;
+}
+
+#custom-hermes:hover {
+  background-color: alpha(@frost-1, 0.12);
+}

@@ -6,7 +6,7 @@ from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from .models import DoctorReport
+from .models import AgentStatus, DoctorReport
 
 
 @dataclass(frozen=True)
@@ -41,6 +41,27 @@ class HermesApiClient:
             raise ConnectionError(str(exc)) from exc
         except (json.JSONDecodeError, UnicodeDecodeError) as exc:
             raise ValueError(f"invalid JSON from {path}") from exc
+
+    def status(self) -> AgentStatus:
+        if not self.endpoint or not self.api_key:
+            return AgentStatus("offline", detail="configuração ausente")
+        try:
+            result = self._get("/health/detailed")
+        except HTTPError as exc:
+            return AgentStatus("error", detail=f"HTTP {exc.code}")
+        except (ConnectionError, ValueError) as exc:
+            return AgentStatus("offline", detail=str(exc))
+
+        payload = result.payload
+        gateway_state = payload.get("gateway_state")
+        if gateway_state != "running":
+            return AgentStatus(
+                "offline",
+                version=str(payload.get("version") or "") or None,
+                detail=f"gateway: {gateway_state or 'desconhecido'}",
+            )
+        state = "busy" if payload.get("gateway_busy") else "running"
+        return AgentStatus(state, version=str(payload.get("version") or "") or None)
 
     def doctor(self) -> DoctorReport:
         report = DoctorReport()

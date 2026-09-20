@@ -6,6 +6,33 @@ from typing import Any
 
 
 @dataclass
+class AgentStatus:
+    state: str
+    version: str | None = None
+    detail: str = ""
+
+    def to_waybar_dict(self) -> dict[str, str]:
+        labels = {
+            "running": ("☤", "Hermes: disponível"),
+            "busy": ("☤", "Hermes: ocupado"),
+            "offline": ("☤", "Hermes: indisponível"),
+            "error": ("☤", "Hermes: erro"),
+        }
+        text, label = labels.get(self.state, ("☤", "Hermes: desconhecido"))
+        version = f"\nVersão: {self.version}" if self.version else ""
+        detail = f"\n{self.detail}" if self.detail else ""
+        return {
+            "text": text,
+            "tooltip": f"{label}{version}{detail}",
+            "class": self.state,
+            "alt": self.state,
+        }
+
+    def to_waybar_json(self) -> str:
+        return json.dumps(self.to_waybar_dict(), ensure_ascii=False)
+
+
+@dataclass
 class DoctorReport:
     reachable: bool = False
     authenticated: bool = False

@@ -1,0 +1,8 @@
+// Adicione "custom/hermes" à lista modules-right.
+"custom/hermes": {
+  "exec": "hermes-waybar status --waybar",
+  "return-type": "json",
+  "interval": 10,
+  "tooltip": true,
+  "format": "{}"
+}
