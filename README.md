@@ -45,7 +45,7 @@ O helper local não deve armazenar tokens na configuração do Waybar. Credencia
 
 ## Desenvolvimento
 
-O plano de implementação está em [`docs/PLAN.md`](docs/PLAN.md). A arquitetura está em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). A configuração está em [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md).
+O plano de implementação está em [`docs/PLAN.md`](docs/PLAN.md). A arquitetura está em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). A configuração está em [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md). A exposição do API Server está em [`docs/INFRASTRUCTURE.md`](docs/INFRASTRUCTURE.md).
 
 O primeiro comando implementado é o diagnóstico do API Server:
 
