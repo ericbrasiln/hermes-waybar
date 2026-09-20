@@ -80,6 +80,16 @@ class HermesApiClient:
             labels.append(f"{title[:56]}" + (f" [{model}]" if model else ""))
         return labels[:limit]
 
+    def current_model(self) -> tuple[str, str]:
+        """Return (model, provider) from the API Server model options."""
+        try:
+            result = self._get("/api/model/options")
+        except (HTTPError, ConnectionError, ValueError):
+            return "", ""
+        model = str(result.payload.get("model") or "").strip()
+        provider = str(result.payload.get("provider") or "").strip()
+        return model, provider
+
     def status(self) -> AgentStatus:
         if not self.endpoint or not self.api_key:
             return AgentStatus("offline", detail="configuração ausente")
@@ -103,7 +113,14 @@ class HermesApiClient:
             sessions = self.sessions()
         except (HTTPError, ConnectionError, ValueError):
             sessions = []
-        return AgentStatus(state, version=str(payload.get("version") or "") or None, sessions=sessions)
+        model, provider = self.current_model()
+        return AgentStatus(
+            state,
+            version=str(payload.get("version") or "") or None,
+            sessions=sessions,
+            model=model,
+            provider=provider,
+        )
 
     def doctor(self) -> DoctorReport:
         report = DoctorReport()

@@ -39,6 +39,10 @@ class StatusTests(unittest.TestCase):
                 "http://gateway/api/sessions?limit=5": {
                     "data": [{"title": "Pesquisa", "model": "gpt-test"}],
                 },
+                "http://gateway/api/model/options": {
+                    "model": "gpt-test",
+                    "provider": "test-provider",
+                },
             }
             return FakeResponse(responses[request.full_url])
 

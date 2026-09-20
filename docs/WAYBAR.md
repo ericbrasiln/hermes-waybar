@@ -33,14 +33,20 @@ Dentro do objeto principal da configuração:
   "tooltip": true,
   "format": "{}",
   "on-click": "hermes-waybar open",
-  "on-click-right": "hermes-waybar sessions --theme ~/.config/rofi/themes/nord.rasi"
+  "on-click-right": "hermes-waybar hud"
 },
 ```
 
-- clique esquerdo: abre o Hermes Desktop;
-- clique direito: abre o seletor de sessões no Rofi.
+- clique esquerdo: abre o Hermes Desktop; se já estiver aberto, foca a janela;
+- clique direito: abre o Desktop e o deixa flutuante (HUD).
 
-O clique usa `hermes desktop --skip-build` por padrão. Para outro comando:
+O foco usa `hyprctl dispatch focuswindow class:^Hermes$`. A classe de janela pode ser ajustada:
+
+```bash
+export HERMES_WAYBAR_WINDOW_CLASS='Hermes'
+```
+
+O clique usa `hermes desktop --skip-build` quando não há janela. Para outro comando:
 
 ```bash
 export HERMES_WAYBAR_DESKTOP_COMMAND='seu-comando-do-desktop'

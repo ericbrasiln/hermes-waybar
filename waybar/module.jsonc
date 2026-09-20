@@ -6,5 +6,5 @@
   "tooltip": true,
   "format": "{}",
   "on-click": "hermes-waybar open",
-  "on-click-right": "hermes-waybar sessions --theme ~/.config/rofi/themes/nord.rasi"
+  "on-click-right": "hermes-waybar hud"
 }
